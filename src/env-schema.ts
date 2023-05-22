@@ -32,3 +32,17 @@ export default {
     },
   }
 }
+
+declare module 'fastify' {
+  export interface FastifyInstance {
+    env: {
+      HOST: string;
+      PORT: number;
+      DB_HOST: string;
+      DB_PORT: number;
+      DB_NAME: string;
+      DB_USERNAME: string;
+      DB_PASSWORD: string;
+    };
+  }
+}
