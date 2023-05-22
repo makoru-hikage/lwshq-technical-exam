@@ -24,6 +24,7 @@ const app: FastifyPluginAsync<AppOptions> = async (
   // through your application
   void fastify.register(AutoLoad, {
     dir: join(__dirname, 'plugins'),
+    maxDepth: 0,
     options: opts
   })
 
