@@ -1,5 +1,9 @@
 // Read the .env file.
 import * as dotenv from "dotenv";
+import fastifyEnv from '@fastify/env';
+
+import envSchema from "./src/env-schema";
+
 dotenv.config();
 
 // Require the framework
@@ -15,6 +19,11 @@ const app = Fastify({
 
 // Register your application as a normal plugin.
 app.register(import("./src/app"));
+
+app.register(fastifyEnv, {
+  confKey: 'env',
+  schema: envSchema
+})
 
 // delay is the number of milliseconds for the graceful close to finish 
 const closeListeners = closeWithGrace(
