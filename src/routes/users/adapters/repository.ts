@@ -1,10 +1,10 @@
 import { Knex } from 'knex';
-import * as bcrypt from 'bcryptjs';
+import { hashPassword } from './password-hash';
 import { User } from '../domain/user';
 
 
 
-export class UserRepository {
+export default class UserRepository {
   private knex: Knex;
 
   constructor(knex: Knex) {
@@ -12,10 +12,7 @@ export class UserRepository {
   }
 
   private async hashPassword(password: string): Promise<string> {
-    const saltRounds = 10;
-    const salt = await bcrypt.genSalt(saltRounds);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    return hashedPassword;
+    return hashPassword(password);
   }
 
   public async createUser(user: User): Promise<User> {
