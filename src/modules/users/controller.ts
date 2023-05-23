@@ -10,8 +10,20 @@ export default function UserController (fastify: FastifyInstance) {
       const loginRepository = new LoginRepository(knex);
   
       const { email, password } = request.body;
-  
-      return login(email, password, loginRepository);
+
+      const loginResult = await login(email, password, loginRepository);
+
+      if (loginResult.code !== 200){
+        return reply.unauthorized(loginResult.message);
+      }
+
+      const token = await reply.jwtSign(loginResult.data);
+
+      return reply.cookie('logged_user', token, {
+        httpOnly: true,
+        sameSite: 'none',
+        maxAge: 3600 //This is in seconds
+      }).send(loginResult);
     }
   }
 }
