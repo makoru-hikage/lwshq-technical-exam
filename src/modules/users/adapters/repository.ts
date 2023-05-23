@@ -28,7 +28,7 @@ export default class UserRepository {
     return user || null;
   }
 
-  public async getUserByUsername(email: string): Promise<User | null> {
+  public async getUserByEmail(email: string): Promise<User | null> {
     const user = await this.knex('users').where({ email }).first();
     return user || null;
   }

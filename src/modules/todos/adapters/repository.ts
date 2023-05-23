@@ -31,7 +31,7 @@ export class TodoRepository {
   }
 
   // Update an existing record by ID
-  async updateRecordById(id: number, data: any): Promise<boolean> {
+  async updateRecordById(id: string, data: any): Promise<boolean> {
     try {
       const knex = this.knex;
       const updatedCount = await knex('todos').where({ id }).update(data);
@@ -42,7 +42,7 @@ export class TodoRepository {
   }
 
   // Delete a record by ID
-  async deleteRecordById(id: number): Promise<boolean> {
+  async deleteRecordById(id: string): Promise<boolean> {
     try {
       const knex = this.knex;
       const deletedCount = await knex('todos').where({ id }).del();
