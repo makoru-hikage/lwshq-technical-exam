@@ -1,5 +1,5 @@
 import {Knex} from 'knex';
-import UserRepository from '../src/routes/users/adapters/repository';
+import UserRepository from '../src/modules/users/adapters/repository';
 
 export async function seed(knex: Knex): Promise<any> {
   const repo = new UserRepository(knex);
