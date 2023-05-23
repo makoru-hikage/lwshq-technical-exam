@@ -14,7 +14,7 @@ export async function login (
   message: string;
   data?: any;
 }> {
-  const user = repository.getUser(unique_id);
+  const user = await repository.getUser(unique_id) ?? null;
 
   if (!user) {
     return {
@@ -23,7 +23,9 @@ export async function login (
     }
   }
 
-  if (!repository.checkPassword(unique_id, password)) {
+  const passwordMatch = await repository.checkPassword(unique_id, password);
+
+  if (!passwordMatch) {
     return {
       code: 401,
       message: 'Access denied.'
@@ -33,6 +35,10 @@ export async function login (
   return {
     code: 200,
     message: 'Access granted',
-    data: user,
+    data: {
+      id: user.id,
+      email: user.email,
+      name: user.name
+    },
   };
 }
