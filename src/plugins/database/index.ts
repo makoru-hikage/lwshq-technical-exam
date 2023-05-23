@@ -4,7 +4,7 @@ import { FastifyPluginAsync } from 'fastify'
 import knexPlugin from './lib/knex';
 
 /**
- * This plugins adds some utilities to handle http errors
+ * This plugin enables database connection.
  *
  * @see https://github.com/fastify/fastify-sensible
  */
