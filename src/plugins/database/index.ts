@@ -1,8 +1,7 @@
 import fp from 'fastify-plugin'
 import { FastifyPluginAsync } from 'fastify'
 
-import knexPlugin from './lib/knex'
-import { Knex } from 'knex';
+import knexPlugin from './lib/knex';
 
 /**
  * This plugins adds some utilities to handle http errors
@@ -14,11 +13,11 @@ const dbConnectionPlugin: FastifyPluginAsync = fp(async (fastify) => {
     knexConfig: {
       client: 'pg',
       connection: {
-        host: process.env.DB_HOST,
-        port: parseInt(process.env.DB_PORT || '8000'),
-        database: process.env.DB_NAME,
-        user: process.env.DB_USERNAME,
-        password: process.env.DB_PASSWORD
+        host: process.env.DB_HOST || '127.0.0.1',
+        port: parseInt(process.env.DB_PORT || '5432'),
+        database: process.env.DB_NAME || 'todo_local',
+        user: process.env.DB_USERNAME || 'postgres',
+        password: process.env.DB_PASSWORD || ''
       }
     }
   });
@@ -29,10 +28,3 @@ const dbConnectionPlugin: FastifyPluginAsync = fp(async (fastify) => {
 })
 
 export default dbConnectionPlugin;
-
-// When using .decorate you have to specify added properties for Typescript
-declare module 'fastify' {
-  interface FastifyInstance {
-    knex: Knex
-  }
-}
