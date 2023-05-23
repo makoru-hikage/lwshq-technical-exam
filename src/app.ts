@@ -33,7 +33,7 @@ const app: FastifyPluginAsync<AppOptions> = async (
   void fastify.register(AutoLoad, {
     dir: join(__dirname, 'modules'),
     options: opts,
-    maxDepth: 0,
+    maxDepth: 1,
   })
 
 };
