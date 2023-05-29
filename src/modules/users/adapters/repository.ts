@@ -1,6 +1,6 @@
 import { Knex } from 'knex';
 import { hashPassword } from './password-hash';
-import { User } from '../domain/user';
+import { InsertUserData, User } from '../domain/user';
 
 
 
@@ -15,7 +15,7 @@ export default class UserRepository {
     return hashPassword(password);
   }
 
-  public async createUser(user: User): Promise<User> {
+  public async createUser(user: InsertUserData): Promise<User> {
     const hashedPassword = await this.hashPassword(user.password);
     const newUser = { ...user, password: hashedPassword };
 

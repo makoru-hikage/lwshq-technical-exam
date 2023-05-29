@@ -1,6 +1,8 @@
 export type User = {
-  id?: number;
+  id: string;
   name:string;
   email: string;
   password: string;
 }
+
+export type InsertUserData = Omit<User, 'id'>;
