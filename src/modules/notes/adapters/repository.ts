@@ -1,0 +1,43 @@
+import {Knex} from 'knex';
+import { Note, NoteInsertData } from '../domain/note';
+
+class NoteRepository {
+  private knex: Knex;
+
+  constructor(knex: Knex) {
+    this.knex = knex;
+  }
+
+  public async create(note: NoteInsertData): Promise<Note> {
+    const [id] = await this.knex('notes').insert(note).returning([
+      'id',
+      'title',
+      'user_id',
+      'text',
+      'created_at'
+    ]);
+    return id;
+  }
+
+  public async getById(id: string): Promise<Note | null> {
+    const note = await this.knex('notes').select('*').where('id', id).first();
+    return note || null;
+  }
+
+  public async getAll(): Promise<Note[]> {
+    const notes = await this.knex('notes').select('*');
+    return notes;
+  }
+
+  public async update(id: string, updates: Partial<Note>): Promise<boolean> {
+    const result = await this.knex('notes').where('id', id).update(updates);
+    return result > 0;
+  }
+
+  public async delete(id: string): Promise<boolean> {
+    const result = await this.knex('notes').where('id', id).del();
+    return result > 0;
+  }
+}
+
+export default NoteRepository;
