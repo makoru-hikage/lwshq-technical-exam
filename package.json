@@ -17,7 +17,12 @@
     "watch:ts": "tsc -w",
     "dev": "npm run build:ts && concurrently -k -p \"[{name}]\" -n \"TypeScript,App\" -c \"yellow.bold,cyan.bold\" \"npm:watch:ts\" \"npm:dev:start\"",
     "dev:start": "ts-node-dev server.ts",
-    "knex": "knex"
+    "knex": "knex",
+    "knex:migrate:latest": "knex migrate:latest",
+    "knex:migrate:rollback": "knex migrate:rollback",
+    "knex:migrate:rollback:all": "knex migrate:rollback:all",
+    "knex:seed:run": "knex seed:run",
+    "knex:reset": "knex migrate:rollback && knex migrate:latest && knex seed:run"
   },
   "keywords": [],
   "author": "",
