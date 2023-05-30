@@ -22,7 +22,9 @@ export default function UserController (fastify: FastifyInstance) {
       return reply.cookie('logged_user', token, {
         httpOnly: true,
         sameSite: 'none',
-        maxAge: 3600 //This is in seconds
+        // If you are using Express, this would be in milliseconds.
+        maxAge: 3600,
+        path: '/',
       }).send(loginResult);
     }
   }
