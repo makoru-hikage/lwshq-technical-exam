@@ -26,6 +26,11 @@ export default function UserController (fastify: FastifyInstance) {
         maxAge: 3600,
         path: '/',
       }).send(loginResult);
+    },
+
+    async logout (request: FastifyRequest, reply: FastifyReply) {
+
+      return reply.clearCookie('logged_user').send({ message: 'You are now logged out.'});
     }
   }
 }
