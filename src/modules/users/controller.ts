@@ -25,7 +25,10 @@ export default function UserController (fastify: FastifyInstance) {
         // If you are using Express, this would be in milliseconds.
         maxAge: 3600,
         path: '/',
-      }).send(loginResult);
+      }).send({
+        message: loginResult.message,
+        data: loginResult.data
+      });
     },
 
     async logout (request: FastifyRequest, reply: FastifyReply) {

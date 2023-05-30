@@ -19,7 +19,10 @@ export default function NoteController(fastify: FastifyInstance) {
           user_id: user.id,
           ...input
         });
-        reply.status(201).send(note);
+        reply.status(201).send({
+          message: 'Note created!',
+          data: note
+        });
       } catch (error) {
         console.error('Error creating note:', error);
         reply.status(500).send({ error: 'Failed to create note' });
@@ -51,7 +54,10 @@ export default function NoteController(fastify: FastifyInstance) {
       try {
         const noteRepo = new NoteRepository(fastify.knex);
         const notes = await noteRepo.getAll();
-        reply.status(200).send(notes);
+        reply.status(200).send({
+          message: "Notes fetched!",
+          data: notes
+        });
       } catch (error) {
         console.error('Error retrieving notes:', error);
         reply.status(500).send({ error: 'Failed to retrieve notes' });
