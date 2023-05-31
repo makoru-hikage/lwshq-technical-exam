@@ -23,7 +23,12 @@ interface Cookie {
   [name: string]: unknown
 }
 
+// Let's say this is a cookie jar.
+// We don't have something like Express superagent
 let loginCookie: Cookie | undefined;
+
+// The ID of the single note we'll test.
+let newNoteId: string;
 
 test('Setup', async (t) => {
   t.plan(2);
@@ -50,9 +55,7 @@ test('Setup', async (t) => {
   t.pass('Fastify server setup complete');
 });
 
-test('CRUD Endpoint Tests', async (t) => {
-
-  let newNoteId: string;
+test('The Creation', async (t) => {
 
   // Create Note
   const newNote = {
@@ -72,8 +75,8 @@ test('CRUD Endpoint Tests', async (t) => {
   const createdItem = JSON.parse(createResponse.payload);
   newNoteId = createdItem.data.id;
 
-  t.equal(createdItem.data.title, newNote.title, 'note title matches');
-  t.equal(createdItem.data.text, newNote.text, 'note text matches');
+  t.equal(createdItem.data.title, newNote.title, 'Note title matches');
+  t.equal(createdItem.data.text, newNote.text, 'Note text matches');
 
   // Get Note
   const getResponse = await testApp.inject({
@@ -86,10 +89,13 @@ test('CRUD Endpoint Tests', async (t) => {
 
   const item = JSON.parse(getResponse.payload);
 
-  t.equal(item.data.id, newNoteId, 'Retrieved item ID matches');
+  t.equal(item.data.id, newNoteId, 'Retrieved note ID matches');
   t.equal(item.data.title, newNote.title, 'Retrieved note title matches');
   t.equal(item.data.text, newNote.text, 'Retrieved note text matches');
 
+});
+
+test('The Update', async (t) => {
   // Update Note
   const updateInput = {
     title: 'Test Item (UPDATED!)',
@@ -119,7 +125,9 @@ test('CRUD Endpoint Tests', async (t) => {
   t.equal(updatedItem.id, newNoteId, 'Retrieved item ID matches');
   t.equal(updatedItem.title, updateInput.title, 'Updated note title matches');
   t.equal(updatedItem.text, updateInput.text, 'Updated note text matches');
+});
 
+test('The Deletion', async (t) => {
   // Delete Item
   const deleteResponse = await testApp.inject({
     method: 'DELETE',
@@ -128,6 +136,15 @@ test('CRUD Endpoint Tests', async (t) => {
   });
 
   t.equal(deleteResponse.statusCode, 204, 'Note deleted successfully');
+
+  // Get Note
+  const getUpdatedResponse = await testApp.inject({
+    method: 'GET',
+    url: `/notes/${newNoteId}`,
+    cookies: { logged_user: loginCookie?.value ?? '' }
+  });
+
+  t.equal(getUpdatedResponse.statusCode, 404, 'Note does not exist anymore');
 });
 
 test('Teardown', async (t) => {
