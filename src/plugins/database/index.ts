@@ -1,6 +1,6 @@
-import fp from 'fastify-plugin'
-import { FastifyPluginAsync } from 'fastify'
-
+import fp from 'fastify-plugin';
+import { FastifyPluginAsync } from 'fastify';
+import { Knex } from 'knex';
 import knexPlugin from './lib/knex';
 
 /**
@@ -8,9 +8,12 @@ import knexPlugin from './lib/knex';
  *
  * @see https://github.com/fastify/fastify-sensible
  */
-const dbConnectionPlugin: FastifyPluginAsync = fp(async (fastify) => {
+const dbConnectionPlugin: FastifyPluginAsync<{ 
+  knexConfig: Knex.Config 
+}> = fp(async (fastify, opts) => {
+
   await fastify.register(knexPlugin, {
-    knexConfig: {
+    knexConfig: opts?.knexConfig ?? {
       client: 'pg',
       connection: {
         host: process.env.DB_HOST || '127.0.0.1',

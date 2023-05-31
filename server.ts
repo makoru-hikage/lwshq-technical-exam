@@ -8,30 +8,37 @@ import Fastify from "fastify";
 
 // Require library to exit fastify process, gracefully (if possible)
 import closeWithGrace from "close-with-grace";
-
-// delay is the number of milliseconds for the graceful close to finish 
-const closeListeners = closeWithGrace(
-  { delay: parseInt(process.env.FASTIFY_CLOSE_GRACE_DELAY || '500') },
-  async function ({ signal, err, manual }
-) {
-  if (err) {
-    app.log.error(err)
-  }
-  await app.close()
-} as closeWithGrace.CloseWithGraceAsyncCallback)
+import { FastifyServerOptions } from "fastify";
+import { Knex } from "knex";
+import { app } from './src/app' 
 
 
-// Instantiate Fastify with some config
-const app = Fastify({
-  logger: true,
-});
+async function server (opts: FastifyServerOptions & { knexConfig?: Knex.Config } = {}) {
+  // Instantiate Fastify with some config
+  const fastify = Fastify({
+    logger: true,
+  });
 
-// Register your application as a normal plugin.
-app.register(import("./src/app"));
+    // delay is the number of milliseconds for the graceful close to finish 
+  const closeListeners = closeWithGrace(
+    { delay: parseInt(process.env.FASTIFY_CLOSE_GRACE_DELAY || '500') },
+    async function ({ signal, err, manual }
+  ) {
+    if (err) {
+      fastify.log.error(err)
+    }
+    await fastify.close()
+  } as closeWithGrace.CloseWithGraceAsyncCallback)
 
-app.addHook('onClose', async (instance, done) => {
-  closeListeners.uninstall()
-  done()
-})
+  // Register your application as a normal plugin.
+  fastify.register(app, opts);
 
-export default app;
+  fastify.addHook('onClose', async (instance, done) => {
+    closeListeners.uninstall()
+    done()
+  })
+
+  return fastify;
+}
+
+export default server;

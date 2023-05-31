@@ -1,9 +1,11 @@
 import { join } from 'path';
 import AutoLoad, {AutoloadPluginOptions} from '@fastify/autoload';
 import { FastifyPluginAsync } from 'fastify';
+import { Knex } from 'knex';
 
 export type AppOptions = {
   // Place your custom options for app below here.
+  knexConfig?: Knex.Config
 } & Partial<AutoloadPluginOptions>;
 
 
