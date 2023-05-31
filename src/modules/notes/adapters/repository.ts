@@ -22,32 +22,45 @@ class NoteRepository {
     return id;
   }
 
-  public async getById(id: string): Promise<Note | null> {
-    const note = await this.knex('notes').select('*').where('id', id).first();
+  public async getById(id: string, userId: string): Promise<Note | null> {
+    const note = await this.knex('notes')
+      .select('*')
+      .where('id', id)
+      .where('user_id', userId)
+      .first();
     return note || null;
   }
 
-  public async getAll(): Promise<Note[]> {
-    const notes = await this.knex('notes').select('*');
+  public async getAll(userId: string): Promise<Note[]> {
+    const notes = await this.knex('notes').select('*').where({user_id: userId});
     return notes;
   }
 
-  public async update(id: string, updates: Partial<NoteUpdateData>): Promise<boolean> {
-    const result = await this.knex('notes').where('id', id).update(
-      {
-        updated_at: format(
-          new Date(),
-          `yyyy-MM-dd'T'HH:mm:ss.SSSX`,
-          { timeZone: TZ }
-        ),
-        ...updates
-      }
-    );
+  public async update(
+    id: string,
+    updates: Partial<NoteUpdateData>,
+    userId: string): Promise<boolean> {
+    const result = await this.knex('notes')
+      .where('id', id)
+      .where('user_id', userId)
+      .update(
+        {
+          updated_at: format(
+            new Date(),
+            `yyyy-MM-dd'T'HH:mm:ss.SSSX`,
+            { timeZone: TZ }
+          ),
+          ...updates
+        }
+      );
     return result > 0;
   }
 
-  public async delete(id: string): Promise<boolean> {
-    const result = await this.knex('notes').where('id', id).del();
+  public async delete(id: string, userId: string): Promise<boolean> {
+    const result = await this.knex('notes')
+      .where('id', id)
+      .where('user_id', userId)
+      .del();
     return result > 0;
   }
 }

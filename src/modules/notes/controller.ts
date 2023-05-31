@@ -1,19 +1,16 @@
 import NoteRepository from './adapters/repository';
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { NoteInsertData, NoteUpdateData } from './domain/note';
 
 export default function NoteController(fastify: FastifyInstance) {
   return {
     createNote: async (
-      request: FastifyRequest<{Body: {
-        title: string,
-        text: string
-      }}>,
+      request: FastifyRequest<{Body: Omit<NoteInsertData, 'user_id'>}>,
       reply: FastifyReply
     ): Promise<FastifyInstance> => {
       try {
         const user = request.user;
-        const { title, text } = request.body;
-        const input = { title, text };
+        const input = request.body;
         const noteRepo = new NoteRepository(fastify.knex);
         const note = await noteRepo.create({
           user_id: user.id,
@@ -37,8 +34,9 @@ export default function NoteController(fastify: FastifyInstance) {
     ): Promise<void> => {
       try {
         const { id } = request.params;
+        const user = request.user;
         const noteRepo = new NoteRepository(fastify.knex);
-        const note = await noteRepo.getById(id);
+        const note = await noteRepo.getById(id, user.id);
         if (note) {
           reply.status(200).send({
             message: 'Note found!',
@@ -55,8 +53,9 @@ export default function NoteController(fastify: FastifyInstance) {
   
     getAllNotes: async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
       try {
+        const user = request.user;
         const noteRepo = new NoteRepository(fastify.knex);
-        const notes = await noteRepo.getAll();
+        const notes = await noteRepo.getAll(user.id);
         reply.status(200).send({
           message: "Notes fetched!",
           data: notes
@@ -69,20 +68,17 @@ export default function NoteController(fastify: FastifyInstance) {
   
     updateNote: async (
       request: FastifyRequest<{
-        Body: {
-          title: string,
-          text: string
-        },
+        Body: NoteUpdateData,
         Params: { id: string }
       }>,
       reply: FastifyReply
     ): Promise<void> => {
       try {
+        const user = request.user;
         const { id } = request.params;
-        const { title, text } = request.body;
-        const updates = { title, text };
+        const updates = request.body;
         const noteRepo = new NoteRepository(fastify.knex);
-        const success = await noteRepo.update(id, updates);
+        const success = await noteRepo.update(id, updates, user.id);
         if (success) {
           reply.status(200).send({ message: "Note Updated!", data: updates });
         } else {
@@ -101,9 +97,10 @@ export default function NoteController(fastify: FastifyInstance) {
       reply: FastifyReply
     ): Promise<void> => {
       try {
+        const user = request.user;
         const { id } = request.params;
         const noteRepo = new NoteRepository(fastify.knex);
-        const success = await noteRepo.delete(id);
+        const success = await noteRepo.delete(id, user.id);
         if (success) {
           reply.status(204).send();
         } else {
