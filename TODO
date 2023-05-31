@@ -1,0 +1,4 @@
+- Make sure that the JWT authenticator checks the user ID from the decoded token against the DB.
+- A test suite to ensure a user can only modify their own notes
+- A test suite to ensure a user can only modify their own todos
+- Input validation on all the endpoints
