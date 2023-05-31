@@ -12,11 +12,11 @@
   "types": "index.d.ts",
   "scripts": {
     "test": "npm run build:ts && tsc -p test/tsconfig.json && tap --ts \"test/**/*.test.ts\"",
-    "start": "npm run build:ts && ts-node server.ts",
+    "start": "npm run build:ts && ts-node main.ts",
     "build:ts": "tsc",
     "watch:ts": "tsc -w",
     "dev": "npm run build:ts && concurrently -k -p \"[{name}]\" -n \"TypeScript,App\" -c \"yellow.bold,cyan.bold\" \"npm:watch:ts\" \"npm:dev:start\"",
-    "dev:start": "ts-node-dev server.ts",
+    "dev:start": "ts-node-dev main.ts",
     "knex": "knex",
     "knex:migrate:latest": "knex migrate:latest",
     "knex:migrate:rollback": "knex migrate:rollback",
