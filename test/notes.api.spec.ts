@@ -2,7 +2,11 @@ import { test } from 'tap';
 import { FastifyInstance } from 'fastify';
 import * as dotenv from "dotenv";
 import app from '../server'
-import testKnexConfig from './db-config';
+import {
+  testKnexConfig,
+  runMigrationAndSeeder,
+  knex as helperKnex,
+} from './db-config';
 
 dotenv.config();
 
@@ -22,9 +26,10 @@ interface Cookie {
 let loginCookie: Cookie | undefined;
 
 test('Setup', async (t) => {
-  t.plan(1);
+  t.plan(2);
 
   try {
+    await runMigrationAndSeeder();
     testApp = await app({ knexConfig: testKnexConfig });
   } catch (err) {
     console.error(err)
@@ -34,18 +39,18 @@ test('Setup', async (t) => {
     method: 'POST',
     url: '/users/login',
     payload: {
-        email: 'sample@text.com',
+        email: 'sample@test.com',
         password: 'P@ssw0rd'
     },
   });
 
   loginCookie = loginResponse.cookies.find(i => i.name === 'logged_user');
 
+  t.equal(loginResponse.statusCode, 200, 'User logged in!');
   t.pass('Fastify server setup complete');
 });
 
 test('CRUD Endpoint Tests', async (t) => {
-  t.plan(11);
 
   let newNoteId: string;
 
@@ -67,13 +72,14 @@ test('CRUD Endpoint Tests', async (t) => {
   const createdItem = JSON.parse(createResponse.payload);
   newNoteId = createdItem.data.id;
 
-  t.equal(createdItem.data.title, newNote.title, 'Item name matches');
-  t.equal(createdItem.data.text, newNote.text, 'Item description matches');
+  t.equal(createdItem.data.title, newNote.title, 'note title matches');
+  t.equal(createdItem.data.text, newNote.text, 'note text matches');
 
   // Get Note
   const getResponse = await testApp.inject({
     method: 'GET',
     url: `/notes/${newNoteId}`,
+    cookies: { logged_user: loginCookie?.value ?? '' }
   });
 
   t.equal(getResponse.statusCode, 200, 'Item retrieved successfully');
@@ -81,41 +87,55 @@ test('CRUD Endpoint Tests', async (t) => {
   const item = JSON.parse(getResponse.payload);
 
   t.equal(item.data.id, newNoteId, 'Retrieved item ID matches');
-  t.equal(item.data.title, newNote.title, 'Retrieved item name matches');
-  t.equal(item.data.text, newNote.text, 'Retrieved item description matches');
+  t.equal(item.data.title, newNote.title, 'Retrieved note title matches');
+  t.equal(item.data.text, newNote.text, 'Retrieved note text matches');
 
-  // Update Item
-  const updatedItem = {
-    name: 'Updated Item',
-    description: 'This is an updated item',
+  // Update Note
+  const updateInput = {
+    title: 'Test Item (UPDATED!)',
+    text: 'This is an updated item',
   };
 
   const updateResponse = await testApp.inject({
-    method: 'PUT',
+    method: 'PATCH',
     url: `/notes/${newNoteId}`,
-    payload: updatedItem,
+    payload: updateInput,
+    cookies: { logged_user: loginCookie?.value ?? '' }
   });
 
-  t.equal(updateResponse.statusCode, 200, 'Item updated successfully');
+  t.equal(updateResponse.statusCode, 200, 'Note updated successfully');
 
-  const updatedItemResponse = JSON.parse(updateResponse.payload);
+  // Get Note
+  const getUpdatedResponse = await testApp.inject({
+    method: 'GET',
+    url: `/notes/${newNoteId}`,
+    cookies: { logged_user: loginCookie?.value ?? '' }
+  });
 
-  t.equal(updatedItemResponse.id, newNoteId, 'Updated item ID matches');
-  t.equal(updatedItemResponse.name, updatedItem.name, 'Updated item name matches');
-  t.equal(updatedItemResponse.description, updatedItem.description, 'Updated item description matches');
+  t.equal(getUpdatedResponse.statusCode, 200, 'Note retrieved successfully');
+
+  const updatedItem = JSON.parse(getUpdatedResponse.payload)?.['data'];
+
+  t.equal(updatedItem.id, newNoteId, 'Retrieved item ID matches');
+  t.equal(updatedItem.title, updateInput.title, 'Updated note title matches');
+  t.equal(updatedItem.text, updateInput.text, 'Updated note text matches');
 
   // Delete Item
   const deleteResponse = await testApp.inject({
     method: 'DELETE',
     url: `/notes/${newNoteId}`,
+    cookies: { logged_user: loginCookie?.value ?? '' }
   });
 
-  t.equal(deleteResponse.statusCode, 204, 'Item deleted successfully');
+  t.equal(deleteResponse.statusCode, 204, 'Note deleted successfully');
 });
 
 test('Teardown', async (t) => {
   t.plan(1);
 
+  // Clear up DB
+  await helperKnex.migrate.rollback();
+  await helperKnex.destroy();
   // Clean up resources and close the server after running the tests
   await testApp.close();
 
