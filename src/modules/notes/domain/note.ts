@@ -11,3 +11,8 @@ export type NoteInsertData = {
   user_id: string;
   text: string;
 }
+
+export type NoteUpdateData = {
+  title: string;
+  text: string;
+}
