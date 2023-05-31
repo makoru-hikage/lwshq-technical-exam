@@ -40,7 +40,10 @@ export default function NoteController(fastify: FastifyInstance) {
         const noteRepo = new NoteRepository(fastify.knex);
         const note = await noteRepo.getById(id);
         if (note) {
-          reply.status(200).send(note);
+          reply.status(200).send({
+            message: 'Note found!',
+            data: note
+          });
         } else {
           reply.status(404).send({ error: 'Note not found' });
         }
@@ -81,7 +84,7 @@ export default function NoteController(fastify: FastifyInstance) {
         const noteRepo = new NoteRepository(fastify.knex);
         const success = await noteRepo.update(id, updates);
         if (success) {
-          reply.status(200).send({ success: true });
+          reply.status(200).send({ message: "Note Updated!", data: updates });
         } else {
           reply.status(404).send({ error: 'Note not found' });
         }
@@ -102,7 +105,7 @@ export default function NoteController(fastify: FastifyInstance) {
         const noteRepo = new NoteRepository(fastify.knex);
         const success = await noteRepo.delete(id);
         if (success) {
-          reply.status(200).send({ success: true });
+          reply.status(204).send();
         } else {
           reply.status(404).send({ error: 'Note not found' });
         }
