@@ -176,6 +176,56 @@ test('The Deletion', async t => {
   t.equal(getUpdatedResponse.statusCode, 404, 'Note does not exist anymore');
 });
 
+test('Recency in descending order', async t => {
+  const t1: Omit<TodoInsertData, 'user_id'> = {
+    title: '1st todo',
+    description: 'This is a test item',
+    priority: 'LOW',
+  };
+
+  const t2: Omit<TodoInsertData, 'user_id'> = {
+    title: '2nd todo',
+    description: 'This is a test item',
+    priority: 'LOW',
+  };
+
+  const t3: Omit<TodoInsertData, 'user_id'> = {
+    title: '3rd todo',
+    description: 'This is a test item',
+    priority: 'LOW',
+  };
+
+  const inputList: Omit<TodoInsertData, 'user_id'>[] = [t1, t2, t3];
+  const titlesOfInputList = inputList.map(i => i.title);
+
+  for(const input of inputList){
+    await testApp.inject({
+      method: 'POST',
+      url: '/todos',
+      payload: input,
+      cookies: { logged_user: loginCookie?.value ?? '' },
+    });
+
+  }
+
+  // Get Notes
+  const getResponse = await testApp.inject({
+    method: 'GET',
+    url: `/todos`,
+    cookies: { logged_user: loginCookie?.value ?? '' },
+  });
+
+  t.equal(getResponse.statusCode, 200, 'Item retrieved successfully');
+
+  const items = JSON.parse(getResponse.payload)?.['data'];
+
+  t.strictSame(
+    items.map((i: Omit<TodoInsertData, 'user_id'>) => i.title),
+    titlesOfInputList.reverse(),
+    'In the right order'
+  );
+});
+
 test('Teardown', async t => {
   t.plan(1);
 

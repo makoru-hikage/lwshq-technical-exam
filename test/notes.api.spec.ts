@@ -7,6 +7,7 @@ import {
   runMigrationAndSeeder,
   knex as helperKnex,
 } from './db-config';
+import { NoteInsertData } from '../src/modules/notes/domain/note';
 
 dotenv.config();
 
@@ -143,6 +144,54 @@ test('The Deletion', async t => {
   });
 
   t.equal(getUpdatedResponse.statusCode, 404, 'Note does not exist anymore');
+});
+
+test('Recency in descending order', async t => {
+  // Create Note
+  const n1 = {
+    title: '1st note',
+    text: 'This is a test item',
+  };
+
+  const n2 = {
+    title: '2nd note',
+    text: 'This is a test item',
+  };
+
+  const n3 = {
+    title: '3rd note',
+    text: 'This is a test item',
+  };
+
+  const inputList: Omit<NoteInsertData, 'user_id'>[] = [n1, n2, n3];
+  const titlesOfInputList = inputList.map(i => i.title);
+
+  for(const input of inputList){
+    await testApp.inject({
+      method: 'POST',
+      url: '/notes',
+      payload: input,
+      cookies: { logged_user: loginCookie?.value ?? '' },
+    });
+
+  }
+
+  // Get Notes
+  const getResponse = await testApp.inject({
+    method: 'GET',
+    url: `/notes`,
+    cookies: { logged_user: loginCookie?.value ?? '' },
+  });
+
+  t.equal(getResponse.statusCode, 200, 'Item retrieved successfully');
+
+  const items = JSON.parse(getResponse.payload)?.['data'];
+
+  t.strictSame(
+    items.map((i: Omit<NoteInsertData, 'user_id'>) => i.title),
+    titlesOfInputList.reverse(),
+    'In the right order'
+  );
 });
 
 test('Teardown', async t => {
