@@ -25,10 +25,12 @@ export default class TodoRepository {
   }
 
   // Read all todos by ID
-  async getAll(user_id: string): Promise<any | null> {
+  async getAll(user_id: string): Promise<Todo[]> {
     try {
       const knex = this.knex;
-      const todos = await knex('todos').where({ user_id });
+      const todos = await knex('todos')
+        .where({ user_id })
+        .orderBy('created_at', "desc");
       return todos || [];
     } catch (error) {
       throw new Error('Failed to get all todos');
@@ -36,7 +38,7 @@ export default class TodoRepository {
   }
 
   // Read a single todo by ID
-  async getById(id: string): Promise<any | null> {
+  async getById(id: string): Promise<Todo | null> {
     try {
       const knex = this.knex;
       const todo = await knex('todos').where({ id }).first();

@@ -30,7 +30,8 @@ class NoteRepository {
   public async getAll(userId: string): Promise<Note[]> {
     const notes = await this.knex('notes')
       .select('*')
-      .where({ user_id: userId });
+      .where({ user_id: userId })
+      .orderBy('created_at', 'desc');
     return notes;
   }
 
