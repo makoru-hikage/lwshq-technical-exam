@@ -1,11 +1,11 @@
-import { TodoPriority } from "./priorities";
+import { TodoPriority } from './priorities';
 
 export type Todo = {
   user_id: string;
   title: string;
   description: string;
   completed: boolean;
-  priority: TodoPriority
+  priority: TodoPriority;
 };
 
 export type TodoInsertData = {

@@ -2,8 +2,6 @@ import { Knex } from 'knex';
 import { hashPassword } from './password-hash';
 import { InsertUserData, User } from '../domain/user';
 
-
-
 export default class UserRepository {
   private knex: Knex;
 
@@ -33,8 +31,13 @@ export default class UserRepository {
     return user || null;
   }
 
-  public async updateUser(id: number, updates: Partial<User>): Promise<User | null> {
-    const [updatedUser] = await this.knex('users').where({ id }).update(updates, '*');
+  public async updateUser(
+    id: number,
+    updates: Partial<User>,
+  ): Promise<User | null> {
+    const [updatedUser] = await this.knex('users')
+      .where({ id })
+      .update(updates, '*');
     return updatedUser || null;
   }
 

@@ -1,4 +1,4 @@
-import {Knex} from 'knex';
+import { Knex } from 'knex';
 
 const TABLE_NAME = 'todos';
 const ENUM_NAME = 'priority_level';
@@ -15,15 +15,16 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('user_id').notNullable();
     table.string('title').notNullable();
     table.string('description').notNullable();
-    table.enum(
-      'priority',
-      PRIORITY_LEVELS,
-      { useNative: true, enumName: ENUM_NAME, existingType: true }
-    ).defaultTo('MEDIUM');
+    table
+      .enum('priority', PRIORITY_LEVELS, {
+        useNative: true,
+        enumName: ENUM_NAME,
+        existingType: true,
+      })
+      .defaultTo('MEDIUM');
     table.boolean('completed').notNullable().defaultTo(false);
     table.timestamps(true, true);
   });
-
 }
 
 export async function down(knex: Knex): Promise<void> {

@@ -10,9 +10,9 @@ export const testKnexConfig = {
     port: parseInt(process.env.DB_PORT || '5432'),
     database: process.env.DB_NAME || 'test_todo_local',
     user: process.env.DB_USERNAME || 'postgres',
-    password: process.env.DB_PASSWORD || ''
-  }
-}
+    password: process.env.DB_PASSWORD || '',
+  },
+};
 
 export const knex = Knex(testKnexConfig);
 

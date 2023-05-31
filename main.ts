@@ -1,13 +1,16 @@
-import app from './server'
+import app from './server';
 
 (async () => {
   // Start listening.
-  const server = await app()
+  const server = await app();
 
-  server.listen({ port: parseInt(process.env.PORT || '8000') }, (err: any) => {
-    if (err) {
-      server.log.error(err);
-      process.exit(1);
-    }
-  });
-})()
+  server.listen(
+    { port: parseInt(process.env.PORT || '8000') },
+    (err: unknown) => {
+      if (err) {
+        server.log.error(err);
+        process.exit(1);
+      }
+    },
+  );
+})();

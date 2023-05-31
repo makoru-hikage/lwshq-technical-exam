@@ -5,8 +5,8 @@ import { TodoInsertData, TodoUpdateData } from './domain/todos';
 export default function TodoController(fastify: FastifyInstance) {
   return {
     createTodo: async (
-      request: FastifyRequest<{Body: Omit<TodoInsertData, 'user_id'>}>,
-      reply: FastifyReply
+      request: FastifyRequest<{ Body: Omit<TodoInsertData, 'user_id'> }>,
+      reply: FastifyReply,
     ): Promise<FastifyInstance> => {
       try {
         const user = request.user;
@@ -18,19 +18,21 @@ export default function TodoController(fastify: FastifyInstance) {
         });
         return reply.status(201).send({
           message: 'Todo created!',
-          data: todo
+          data: todo,
         });
       } catch (error) {
         console.error('Error creating todo:', error);
         return reply.status(500).send({ error: 'Failed to create todo' });
       }
     },
-  
+
     getTodoById: async (
-      request: FastifyRequest<{ Params: {
-        id: string;
-      }}>,
-      reply: FastifyReply
+      request: FastifyRequest<{
+        Params: {
+          id: string;
+        };
+      }>,
+      reply: FastifyReply,
     ): Promise<void> => {
       try {
         const { id } = request.params;
@@ -39,7 +41,7 @@ export default function TodoController(fastify: FastifyInstance) {
         if (todo) {
           reply.status(200).send({
             message: 'Todo found!',
-            data: todo
+            data: todo,
           });
         } else {
           reply.status(404).send({ error: 'Todo not found' });
@@ -49,28 +51,31 @@ export default function TodoController(fastify: FastifyInstance) {
         reply.status(500).send({ error: 'Failed to retrieve todo' });
       }
     },
-  
-    getAllTodos: async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+
+    getAllTodos: async (
+      request: FastifyRequest,
+      reply: FastifyReply,
+    ): Promise<void> => {
       try {
         const user = request.user;
         const todoRepo = new TodoRepository(fastify.knex);
         const todos = await todoRepo.getAll(user.id);
         reply.status(200).send({
-          message: "Todos fetched!",
-          data: todos
+          message: 'Todos fetched!',
+          data: todos,
         });
       } catch (error) {
         console.error('Error retrieving todos:', error);
         reply.status(500).send({ error: 'Failed to retrieve todos' });
       }
     },
-  
+
     updateTodo: async (
       request: FastifyRequest<{
-        Body: TodoUpdateData,
-        Params: { id: string }
+        Body: TodoUpdateData;
+        Params: { id: string };
       }>,
-      reply: FastifyReply
+      reply: FastifyReply,
     ): Promise<void> => {
       try {
         const { id } = request.params;
@@ -78,7 +83,7 @@ export default function TodoController(fastify: FastifyInstance) {
         const todoRepo = new TodoRepository(fastify.knex);
         const success = await todoRepo.update(id, updates);
         if (success) {
-          reply.status(200).send({ message: "Todo Updated!", data: updates });
+          reply.status(200).send({ message: 'Todo Updated!', data: updates });
         } else {
           reply.status(404).send({ error: 'Todo not found' });
         }
@@ -87,12 +92,14 @@ export default function TodoController(fastify: FastifyInstance) {
         reply.status(500).send({ error: 'Failed to update todo' });
       }
     },
-  
+
     deleteTodo: async (
-      request: FastifyRequest<{ Params: {
-        id: string;
-      }}>,
-      reply: FastifyReply
+      request: FastifyRequest<{
+        Params: {
+          id: string;
+        };
+      }>,
+      reply: FastifyReply,
     ): Promise<void> => {
       try {
         const { id } = request.params;
@@ -110,4 +117,3 @@ export default function TodoController(fastify: FastifyInstance) {
     },
   };
 }
-

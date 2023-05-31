@@ -5,10 +5,9 @@ import { format } from 'date-fns-tz';
 const TZ = process.env.TZ || 'Asia/Manila';
 
 export default class TodoRepository {
-
   knex: Knex;
 
-  constructor(knex: Knex){
+  constructor(knex: Knex) {
     this.knex = knex;
   }
 
@@ -18,13 +17,7 @@ export default class TodoRepository {
       const knex = this.knex;
       const [todo] = await knex('todos')
         .insert(input)
-        .returning([
-          'id',
-          'title',
-          'description',
-          'priority',
-          'completed'
-        ]);
+        .returning(['id', 'title', 'description', 'priority', 'completed']);
       return todo;
     } catch (error) {
       throw new Error('Failed to create todo');
@@ -57,14 +50,14 @@ export default class TodoRepository {
   async update(id: string, updates: TodoUpdateData): Promise<boolean> {
     try {
       const knex = this.knex;
-      const updatedCount = await knex('todos').where({ id }).update({
-        updated_at: format(
-          new Date(),
-          `yyyy-MM-dd'T'HH:mm:ss.SSSX`,
-          { timeZone: TZ }
-        ),
-        ...updates
-      });
+      const updatedCount = await knex('todos')
+        .where({ id })
+        .update({
+          updated_at: format(new Date(), `yyyy-MM-dd'T'HH:mm:ss.SSSX`, {
+            timeZone: TZ,
+          }),
+          ...updates,
+        });
       return updatedCount > 0;
     } catch (error) {
       throw new Error('Failed to update todo by ID');
@@ -81,5 +74,4 @@ export default class TodoRepository {
       throw new Error('Failed to delete todo by ID');
     }
   }
-
 }

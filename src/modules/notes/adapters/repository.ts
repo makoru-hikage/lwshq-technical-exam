@@ -1,4 +1,4 @@
-import {Knex} from 'knex';
+import { Knex } from 'knex';
 import { format } from 'date-fns-tz';
 import { Note, NoteInsertData, NoteUpdateData } from '../domain/note';
 
@@ -12,13 +12,9 @@ class NoteRepository {
   }
 
   public async create(note: NoteInsertData): Promise<Note> {
-    const [id] = await this.knex('notes').insert(note).returning([
-      'id',
-      'title',
-      'user_id',
-      'text',
-      'created_at'
-    ]);
+    const [id] = await this.knex('notes')
+      .insert(note)
+      .returning(['id', 'title', 'user_id', 'text', 'created_at']);
     return id;
   }
 
@@ -32,27 +28,26 @@ class NoteRepository {
   }
 
   public async getAll(userId: string): Promise<Note[]> {
-    const notes = await this.knex('notes').select('*').where({user_id: userId});
+    const notes = await this.knex('notes')
+      .select('*')
+      .where({ user_id: userId });
     return notes;
   }
 
   public async update(
     id: string,
     updates: Partial<NoteUpdateData>,
-    userId: string): Promise<boolean> {
+    userId: string,
+  ): Promise<boolean> {
     const result = await this.knex('notes')
       .where('id', id)
       .where('user_id', userId)
-      .update(
-        {
-          updated_at: format(
-            new Date(),
-            `yyyy-MM-dd'T'HH:mm:ss.SSSX`,
-            { timeZone: TZ }
-          ),
-          ...updates
-        }
-      );
+      .update({
+        updated_at: format(new Date(), `yyyy-MM-dd'T'HH:mm:ss.SSSX`, {
+          timeZone: TZ,
+        }),
+        ...updates,
+      });
     return result > 0;
   }
 

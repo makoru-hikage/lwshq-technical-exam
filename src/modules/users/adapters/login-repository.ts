@@ -6,7 +6,7 @@ import UserRepository from './repository';
 export default class LoginRepository implements Repository {
   knex: Knex;
 
-  constructor (knex: Knex) {
+  constructor(knex: Knex) {
     this.knex = knex;
   }
 
@@ -19,13 +19,10 @@ export default class LoginRepository implements Repository {
   async checkPassword(email: string, password: string): Promise<boolean> {
     const user = await this.getUser(email);
 
-    if (!user) return false
+    if (!user) return false;
 
     const passwordHash = user?.password;
 
     return bcrypt.compare(password, passwordHash);
-
   }
-
-
 }

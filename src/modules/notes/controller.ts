@@ -5,8 +5,8 @@ import { NoteInsertData, NoteUpdateData } from './domain/note';
 export default function NoteController(fastify: FastifyInstance) {
   return {
     createNote: async (
-      request: FastifyRequest<{Body: Omit<NoteInsertData, 'user_id'>}>,
-      reply: FastifyReply
+      request: FastifyRequest<{ Body: Omit<NoteInsertData, 'user_id'> }>,
+      reply: FastifyReply,
     ): Promise<FastifyInstance> => {
       try {
         const user = request.user;
@@ -14,23 +14,25 @@ export default function NoteController(fastify: FastifyInstance) {
         const noteRepo = new NoteRepository(fastify.knex);
         const note = await noteRepo.create({
           user_id: user.id,
-          ...input
+          ...input,
         });
         return reply.status(201).send({
           message: 'Note created!',
-          data: note
+          data: note,
         });
       } catch (error) {
         console.error('Error creating note:', error);
         return reply.status(500).send({ error: 'Failed to create note' });
       }
     },
-  
+
     getNoteById: async (
-      request: FastifyRequest<{ Params: {
-        id: string;
-      }}>,
-      reply: FastifyReply
+      request: FastifyRequest<{
+        Params: {
+          id: string;
+        };
+      }>,
+      reply: FastifyReply,
     ): Promise<void> => {
       try {
         const { id } = request.params;
@@ -40,7 +42,7 @@ export default function NoteController(fastify: FastifyInstance) {
         if (note) {
           reply.status(200).send({
             message: 'Note found!',
-            data: note
+            data: note,
           });
         } else {
           reply.status(404).send({ error: 'Note not found' });
@@ -50,28 +52,31 @@ export default function NoteController(fastify: FastifyInstance) {
         reply.status(500).send({ error: 'Failed to retrieve note' });
       }
     },
-  
-    getAllNotes: async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+
+    getAllNotes: async (
+      request: FastifyRequest,
+      reply: FastifyReply,
+    ): Promise<void> => {
       try {
         const user = request.user;
         const noteRepo = new NoteRepository(fastify.knex);
         const notes = await noteRepo.getAll(user.id);
         reply.status(200).send({
-          message: "Notes fetched!",
-          data: notes
+          message: 'Notes fetched!',
+          data: notes,
         });
       } catch (error) {
         console.error('Error retrieving notes:', error);
         reply.status(500).send({ error: 'Failed to retrieve notes' });
       }
     },
-  
+
     updateNote: async (
       request: FastifyRequest<{
-        Body: NoteUpdateData,
-        Params: { id: string }
+        Body: NoteUpdateData;
+        Params: { id: string };
       }>,
-      reply: FastifyReply
+      reply: FastifyReply,
     ): Promise<void> => {
       try {
         const user = request.user;
@@ -80,7 +85,7 @@ export default function NoteController(fastify: FastifyInstance) {
         const noteRepo = new NoteRepository(fastify.knex);
         const success = await noteRepo.update(id, updates, user.id);
         if (success) {
-          reply.status(200).send({ message: "Note Updated!", data: updates });
+          reply.status(200).send({ message: 'Note Updated!', data: updates });
         } else {
           reply.status(404).send({ error: 'Note not found' });
         }
@@ -89,12 +94,14 @@ export default function NoteController(fastify: FastifyInstance) {
         reply.status(500).send({ error: 'Failed to update note' });
       }
     },
-  
+
     deleteNote: async (
-      request: FastifyRequest<{ Params: {
-        id: string;
-      }}>,
-      reply: FastifyReply
+      request: FastifyRequest<{
+        Params: {
+          id: string;
+        };
+      }>,
+      reply: FastifyReply,
     ): Promise<void> => {
       try {
         const user = request.user;
@@ -113,4 +120,3 @@ export default function NoteController(fastify: FastifyInstance) {
     },
   };
 }
-
