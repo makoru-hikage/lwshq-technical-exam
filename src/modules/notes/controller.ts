@@ -9,7 +9,7 @@ export default function NoteController(fastify: FastifyInstance) {
         text: string
       }}>,
       reply: FastifyReply
-    ): Promise<void> => {
+    ): Promise<FastifyInstance> => {
       try {
         const user = request.user;
         const { title, text } = request.body;
@@ -19,13 +19,13 @@ export default function NoteController(fastify: FastifyInstance) {
           user_id: user.id,
           ...input
         });
-        reply.status(201).send({
+        return reply.status(201).send({
           message: 'Note created!',
           data: note
         });
       } catch (error) {
         console.error('Error creating note:', error);
-        reply.status(500).send({ error: 'Failed to create note' });
+        return reply.status(500).send({ error: 'Failed to create note' });
       }
     },
   
