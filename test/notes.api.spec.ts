@@ -1,9 +1,12 @@
-import { test } from 'tap';// Read the .env file.
+import { test } from 'tap';
+import { FastifyInstance } from 'fastify';
 import * as dotenv from "dotenv";
+import app from '../server'
+import testKnexConfig from './db-config';
 
 dotenv.config();
 
-import app from '../server'
+let testApp: FastifyInstance;
 
 interface Cookie {
   name: string;
@@ -21,7 +24,13 @@ let loginCookie: Cookie | undefined;
 test('Setup', async (t) => {
   t.plan(1);
 
-  const loginResponse = await app.inject({
+  try {
+    testApp = await app({ knexConfig: testKnexConfig });
+  } catch (err) {
+    console.error(err)
+  }
+
+  const loginResponse = await testApp.inject({
     method: 'POST',
     url: '/users/login',
     payload: {
@@ -46,7 +55,7 @@ test('CRUD Endpoint Tests', async (t) => {
     text: 'This is a test item',
   };
 
-  const createResponse = await app.inject({
+  const createResponse = await testApp.inject({
     method: 'POST',
     url: '/notes',
     payload: newNote,
@@ -62,7 +71,7 @@ test('CRUD Endpoint Tests', async (t) => {
   t.equal(createdItem.data.text, newNote.text, 'Item description matches');
 
   // Get Note
-  const getResponse = await app.inject({
+  const getResponse = await testApp.inject({
     method: 'GET',
     url: `/notes/${newNoteId}`,
   });
@@ -81,7 +90,7 @@ test('CRUD Endpoint Tests', async (t) => {
     description: 'This is an updated item',
   };
 
-  const updateResponse = await app.inject({
+  const updateResponse = await testApp.inject({
     method: 'PUT',
     url: `/notes/${newNoteId}`,
     payload: updatedItem,
@@ -96,7 +105,7 @@ test('CRUD Endpoint Tests', async (t) => {
   t.equal(updatedItemResponse.description, updatedItem.description, 'Updated item description matches');
 
   // Delete Item
-  const deleteResponse = await app.inject({
+  const deleteResponse = await testApp.inject({
     method: 'DELETE',
     url: `/notes/${newNoteId}`,
   });
@@ -108,7 +117,7 @@ test('Teardown', async (t) => {
   t.plan(1);
 
   // Clean up resources and close the server after running the tests
-  await app.close();
+  await testApp.close();
 
   t.pass('Fastify server teardown complete');
 });
