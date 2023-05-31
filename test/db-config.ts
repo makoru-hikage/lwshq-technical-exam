@@ -23,7 +23,8 @@ export async function runMigrationAndSeeder(): Promise<void> {
 
     // Run seeders
     await knex.seed.run({
-      specific: '001_sample_user_and_note.ts',
+      directory: './test',
+      specific: 'user.seed.ts',
     });
 
     console.log('Migration and seeding completed successfully!');
