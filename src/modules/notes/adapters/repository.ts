@@ -1,5 +1,8 @@
 import {Knex} from 'knex';
-import { Note, NoteInsertData } from '../domain/note';
+import { format } from 'date-fns-tz';
+import { Note, NoteInsertData, NoteUpdateData } from '../domain/note';
+
+const TZ = process.env.TZ || 'Asia/Manila';
 
 class NoteRepository {
   private knex: Knex;
@@ -29,8 +32,17 @@ class NoteRepository {
     return notes;
   }
 
-  public async update(id: string, updates: Partial<Note>): Promise<boolean> {
-    const result = await this.knex('notes').where('id', id).update(updates);
+  public async update(id: string, updates: Partial<NoteUpdateData>): Promise<boolean> {
+    const result = await this.knex('notes').where('id', id).update(
+      {
+        updated_at: format(
+          new Date(),
+          `yyyy-MM-dd'T'HH:mm:ss.SSSX`,
+          { timeZone: TZ }
+        ),
+        ...updates
+      }
+    );
     return result > 0;
   }
 
